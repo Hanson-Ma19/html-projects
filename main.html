@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Game</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+
+    <div class="box"></div>
+
+    <div>
+        <ul id="main_list">
+            <li></li>
+        </ul>
+    </div>
+
+    <div>
+        <!--h1 id="position" style="color: white;">1</h1-->
+        <h1 id="score" class="score">Score:</h1>
+    </div>
+
+    <script>
+        //document.addEventListener("click", MousePos, true);
+
+        var x_pos = 0;
+        var y_pos = 0;
+        
+        function MousePos(event) {
+            x_pos = event.clientX;
+            y_pos = event.clientY;
+            document.getElementById('position').innerHTML= "X: "+x_pos+" Y: "+y_pos;
+        }
+    </script>
+
+    <script>
+        var flag = true;
+        var score = 0
+        var score_after = 0
+
+
+        function Block() {
+            const create = document.createElement('li');
+
+            var clicks = Math.floor(Math.random()*4)+3;
+            
+            if (score >= 3) {clicks = Math.floor(Math.random()*11)+5};
+            if (score >= 5) {clicks = Math.floor(Math.random()*16)+5};
+            if (score >= 10) {clicks = Math.floor(Math.random()*21)+5};
+            if (score >= 20) {clicks = Math.floor(Math.random()*31)+5};
+            if (score >= 30) {clicks = Math.floor(Math.random()*51)+5};
+
+            create.innerHTML = clicks;
+            
+            let blockColors = ['lightcoral','lightseagreen','lightcyan', 'lightpink', 'lightsalmon', 'white']
+
+            create.className = 'block';
+            create.style.left = '300px';
+            create.style.height = (clicks + 70)+'px';
+            create.style.width = create.style.height;
+            create.style.left = Math.floor(Math.random()*90)+'%';
+            create.style.top = '850px';
+            create.style.backgroundColor = blockColors[Math.floor(Math.random()*blockColors.length)];
+
+            create.addEventListener('click', () => {
+                clicks--;
+                if (clicks > 0) {
+                    create.innerHTML = clicks;
+                    create.style.height = (clicks + 70)+'px';
+                    create.style.width = (clicks + 70)+'px';
+                } else {
+                    create.innerHTML = '';
+                    score_after++;
+
+                    create.classList.remove('block');
+                    create.classList.add('block_dead');
+
+                    const animation = create.animate([
+                        {
+                            transform: 'translate('+(Math.floor((Math.random()*1001))-500)+'px, 1000px) rotate(720deg)',
+                        }
+                    ], 1000);
+
+                    animation.finished.then(() => create.remove());
+                }
+            });
+
+            if (score_after > score) {
+                score = score + 1;
+                score_after = score;
+                document.getElementById('score').innerHTML = 'Score: '+score;
+            };
+
+            document.getElementById('main_list').appendChild(create);
+
+            const Movement = () => {
+                var top_place = parseInt(create.style.top);
+                if (flag == true && clicks != 0) {
+                    if (top_place <= 30) {
+                        Stop();
+                        game_over();
+                    } else {
+                        create.style.top = (top_place - 0.1)+'px';
+                        requestAnimationFrame(Movement);
+                    }
+                }
+            }
+            requestAnimationFrame(Movement);
+        };
+
+        function Timing() {
+            if (flag == true) {
+                Block();
+                setTimeout(Timing, 2000);
+            }
+        };
+
+        function Stop() {
+            flag = false;
+        };
+
+        function start_game() {
+            let start_menu = document.getElementById('start_menu');
+            let over_menu = document.getElementById('end_menu');
+            start_menu.style.visibility = 'hidden';
+            over_menu.style.visibility = 'hidden';
+        }
+
+        function game_over() {
+            let over_menu = document.getElementById('end_menu');
+            let over_score = document.getElementById('final_score');
+            over_score.innerHTML = 'Your Final Score Was: '+score;
+            over_menu.style.visibility = 'visible';
+        }
+
+        function play_again() {
+            location.reload()
+        }
+
+    </script>
+
+    <div class="start" id="start_menu">
+        <h1>The Block Game</h1><br>
+        <p>The game is simple. </p><br>
+        <p>There will be blocks rising from below, and don't let them touch the red at the top.</p><br>
+        <p>The number of clicks needed to remove a block is indicated by the number written on the block. </p>
+        </p><br><br>
+        <p>Good Luck!</p>
+        <button onclick="Timing(); start_game()" class="button">START</button>
+    </div>
+
+    <div class="end" id="end_menu">
+        <br><br><h1>GAME OVER!</h1><br>
+        <p id="final_score"></p><br><br>
+        <button class="button" onclick="play_again()">Play Again</button>
+    </div>
+
+    <!--button onclick="Block()">HERE</button>
+    <button onclick="Timing()">START</button>
+    <button onclick="Stop()">STOP</button-->
+
+</body>
+</html>
